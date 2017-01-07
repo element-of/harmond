@@ -147,8 +147,7 @@ remote dlines. irc.server can contain wildcards.
 ```go
 type Dline struct {
     Duration time.Duration
-    IP string
-    Reason, OperReason string
+    IP, Reason, OperReason string
 }
 ```
 
@@ -305,6 +304,19 @@ remote klines. irc.server can contain wildcards.
 - Requires Oper Priv: oper:kline
 ```
 
+#### Event
+
+```go
+type Kline struct {
+  Duration time.Duration
+  User, Host, Reason, OperReason string
+}
+```
+
+#### Effects
+
+Sets a kline in the database and kills any matching users.
+
 ### KNOCK
 
 ```
@@ -316,6 +328,18 @@ for some reason is not open.
 KNOCK cannot be used if you are banned, the
 channel is +p, or it is open.
 ```
+
+#### Event
+
+```go
+type Knock struct {
+  Channel string
+}
+```
+
+#### Effects
+
+Sends a "channel has been knocked" action to all channel halfops and up.
 
 ### LIST
 
@@ -344,31 +368,28 @@ Modifiers are also supported, seperated by a comma:
 eg LIST <100,>20
 ```
 
-### LUSERS
+#### Event
 
+```go
+type ListChannel struct {
+  ChannelName string
+}
+
+type ListModifiers struct {
+  Modifiers string
+}
 ```
-LUSERS [mask [remoteserver]]
 
-LUSERS will display client count statistics.
-If a remote server is specified, it will
-request the information from that server.
-The mask parameter is obsolete but still
-needs to be used when querying a remote
-server.
-```
+#### Effects
 
-### MASKTRACE
+None
 
-```
-MASKTRACE [<nick>!]<user>@<host> :<gecos>
+### MODE
 
-Outputs a list of local users matching the given masks
-in ETRACE format, with the classname replaced by
-the server the users are on. Gecos uses the same
-wildcards as xlines; nick, user and host use just
-? and *.
+#### Event
 
-Supports using CIDR ip masks as a hostname.
+```go
+
 ```
 
 ### MONITOR
@@ -403,23 +424,43 @@ items. RPL_MONOFFLINE and RPL_MONLIST numerics return a comma-separated
 list of nicknames.
 ```
 
+#### Event
+
+```go
+type Monitor struct {
+  Nicks []string
+}
+
+type MonitorAdd Monitor
+type MonitorRemove Monitor
+type MonitorClear struct{}
+type MonitorList struct{}
+type MonitorStatus struct{}
+```
+
+#### Effects
+
+MonitorAdd changes a client's monitor list
+MonitorRemove changes a client's monitor list
+
 ### MOTD
 
 ```
-MOTD [servername]
+MOTD
 
-MOTD will display the message of the day for the
-server name specified, or the local server if there
-was no parameter.
+MOTD will display the message of the day.
+```
+
+#### Event
+
+```go
+type Motd struct{}
 ```
 
 ### NAMES
 
 ```
-NAMES [channel]
-
-With no channel argument, NAMES shows the names (nicks) of all clients
-logged in to the network that do not have +i flag.
+NAMES <channel>
 
 With the #channel argument, it displays the nicks on that channel,
 also respecting the +i flag of each client. If the channel specified
@@ -428,6 +469,18 @@ listed in similar fashion to when the user first joins a channel.
 
 See also: join
 ```
+
+#### Event
+
+```go
+type Names struct {
+  Channel string
+}
+```
+
+#### Effects
+
+None
 
 ### NICK
 
@@ -440,6 +493,23 @@ set the client's nickname.
 NICK will also change the client's nickname once a connection
 has been established.
 ```
+
+#### Event
+
+```go
+type NickPrereg struct{
+  Nick string
+}
+
+type Nick struct{
+  Nick string
+}
+```
+
+#### Effects
+
+NickPrereg changes a pre-registration client's nickname
+Nick changes a client's nickname
 
 ### NOTICE
 
@@ -480,6 +550,23 @@ opers@servername
 In Hybrid 7, all opers on a server will see a message that
 looks like a modified WALLOPS
 ```
+
+#### Event
+
+```go
+type NoticeUser struct {
+  User, Message string
+}
+
+type NoticeChannel struct {
+  Channel, Message string
+}
+```
+
+#### Effects
+
+NoticeUser sends the given user a NOTICE
+NoticeChannel sends the given channel a NOTICE
 
 ### PART
 
