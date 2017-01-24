@@ -1,5 +1,7 @@
 package events
 
+import irc "gopkg.in/irc.v1"
+
 //go:generate stringer -type=Type
 
 // Type is the event type.
@@ -94,4 +96,5 @@ const (
 type Event struct {
 	Type  Type        `json:"type"`
 	Event interface{} `json:"event"`
+	Tags  irc.Tags    `json:"tags"`
 }
