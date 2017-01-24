@@ -518,37 +518,6 @@ NOTICE <nick|channel> :message
 
 NOTICE will send a notice message to the
 user or channel specified.
-
-NOTICE supports the following prefixes for sending
-messages to specific clients in a channel:
-
-@ - channel operators only
-+ - channel operators and voiced users
-
-Two other targets are permitted:
-
-$$servermask - Send a message to a server or set of
-               servers
-$#hostmask   - Send a message to users matching the
-               hostmask specified.
-
-These two are operator only.
-
-The nick can be extended to fit into the following
-syntax:
-
-username@servername
-
-This syntax is used to securely send a message to a
-service or a bot.
-
-An extension of this is the syntax to send to all opers
-on a server.
-
-opers@servername
-
-In Hybrid 7, all opers on a server will see a message that
-looks like a modified WALLOPS
 ```
 
 #### Event
@@ -583,6 +552,19 @@ channel.
 See also: join
 ```
 
+#### Event
+
+```go
+type PartChannel struct {
+  Channel string
+  Reason *string
+}
+```
+
+#### Effects
+
+PartChannel makes the associated user part the given channel listing Reason if given.
+
 ### PASS
 
 ```
@@ -590,31 +572,41 @@ PASS <password>
 
 PASS is used during registration to access
 a password protected auth {} block.
-
-PASS is also used during server registration.
 ```
+
+#### Event
+
+```go
+type Pass struct {
+  Password string
+}
+```
+
+#### Effects
+
+Pass will trigger account password checking during registration, and log the user into
+their services account automatically.
 
 ### PING
 
 ```
-PING <source> :<target>
+PING <data>
 
-PING will request a PONG from the target.  If a
-user or operator issues this command, the source
-will always be turned into the nick that issued
-the PING.
+PING will request a PONG from the target. The given data
+will be returned.
 ```
 
-### PONG
+#### Event
 
+```go
+type Ping struct {
+  Data *string
+}
 ```
-PONG <pinged-client> :<source-client>
 
-PONG is the response to a PING command.  The
-source client is the user or server that issued
-the command, and the pinged client is the
-user or server that received the PING.
-```
+#### Effects
+
+Ping replies with a Pong and the same data given as an argument.
 
 ### PRIVMSG
 
@@ -623,92 +615,48 @@ PRIVMSG <nick|channel> :message
 
 PRIVMSG will send a standard message to the
 user or channel specified.
-
-PRIVMSG supports the following prefixes for sending
-messages to specific clients in a channel:
-
-@ - channel operators only
-+ - channel operators and voiced users
-
-Two other targets are permitted:
-
-$$servermask - Send a message to a server or set of
-               servers
-$#hostmask   - Send a message to users matching the
-               hostmask specified.
-
-These two require Oper Priv: oper:mass_notice
-
-The nick can be extended to fit into the following
-syntax:
-
-username@servername
-
-This syntax is used to securely send a message to a
-service or a bot.
-
-An extension of this is the syntax to send to all opers
-on a server.
-
-opers@servername
-
-In Hybrid 7, all opers on a server will see a message that
-looks like a modified WALLOPS
 ```
+
+#### Event
+
+```go
+type MessageUser struct {
+  User, Message string
+}
+
+type MessageChannel struct {
+  Channel, Message string
+}
+```
+
+#### Effects
+
+MessageUser sends the given user a PRIVMSG
+MessageChannel sends the given channel a PRIVMSG
 
 ### QUIT
 
 ```
 QUIT :[quit message]
 
-QUIT sends a message to the IRC server letting it know you would
-like to disconnect.  The quit message will be displayed to the
-users in the channels you were in when you are disconnected.
+QUIT closes this connection to the IRC server.
+
+If a registered user sends a QUIT, they will still be present
+in chatrooms, scrollback will be colllected for all non-secret
+or private channels to be replayed on reconnect.
 ```
 
-### REHASH
+#### Event
 
-```
-REHASH [option]
-
-When no [option] is given, ircd will re-read the
-ircd.conf file.
-
-[option] can be one of the following:
-  BANS     - Re-reads kline/dline/resv/xline database
-  DNS      - Re-read the /etc/resolv.conf file
-  HELP     - Re-reads help files
-  MOTD     - Re-reads MOTD file
-  NICKDELAY - Clears delayed nicks
-  OMOTD    - Re-reads Oper MOTD file
-  REJECTCACHE - Clears the reject cache
-  TDLINES  - Clears temporary D Lines
-  THROTTLES - Clears throttled IP addresses
-  TKLINES  - Clears temporary K Lines
-  TRESVS   - Clears temporary nick and channel resvs
-  TXLINES  - Clears temporary X Lines
-
-- Requires Oper Priv: oper:rehash
-
-REHASH [option] irc.server
-
-Rehashes [option], or the config file if none given, on irc.server if
-irc.server accepts remote rehashes.
-
-- Requires Oper Privs: oper:rehash, oper:remoteban
+```go
+type Quit struct {
+  Message *string
+}
 ```
 
-### RESTART
+#### Effects
 
-```
-RESTART server.name [server.name]
-
-Restarts the IRC server. If a second server name
-is provided, remotely restart that server. In this
-case, both server names must match.
-
-- Requires Oper Priv: oper:die
-```
+Quit closes the local socket connection.
 
 ### RESV
 
@@ -720,102 +668,29 @@ is added to the database, otherwise is temporary for [time] minutes.
 
 Nick resvs accept the same wildcard chars as xlines.
 Channel resvs only use exact string comparisons.
-
-RESV [time] <channel|nick> ON <server> :<reason>
-
-Will attempt to set the RESV on <server> if <server> accepts remote RESVs.
 ```
 
-### SET
+#### Event
+```go
+type ResvNick struct {
+  Dur time.Duration // 0 = forever
+  Nick string
+  PublicReason string
+  PrivateReason *string
+}
 
-```
-SET <option> <value>
-
-<option> can be one of the following:
-  ADMINSTRING - Sets string shown in WHOIS for admins
-  AUTOCONN    - Sets auto-connect on or off for a particular
-                server
-  AUTOCONNALL - Sets auto-connect on or off for all servers
-  FLOODCOUNT  - The number of lines allowed before
-                throttling a connection due to flooding
-                Note that this variable is used for both
-                channels and clients
-  IDENTTIMEOUT- Timeout for requesting ident from a client
-  MAX         - Sets the number of max connections
-                to <value>.
-  OPERSTRING  - Sets string shown in WHOIS for opers
-  OPERHOST    - Sets the host opers get on oper-up
-  SPAMNUM     - Sets how many join/parts to channels
-                constitutes a possible spambot.
-  SPAMTIME    - Below this time on a channel
-                counts as a join/part as above.
-  SPLITMODE   - Sets splitmode to <value>:
-                 ON   - splitmode is permanently on
-                 OFF  - splitmode is permanently off
-                 AUTO - ircd chooses splitmode based on
-                        SPLITUSERS and SPLITNUM
-  SPLITUSERS  - Sets the minimum amount of users needed to
-                deactivate automatic splitmode.
-  SPLITNUM    - Sets the minimum amount of servers needed to
-                deactivate automatic splitmode.
+type ResvChannel struct {
+  Dur time.Duration // 0 = forever
+  Channel string
+  PublicReason string
+  PrivateReason *string
+}
 ```
 
-### SQUIT
+#### Effects
 
-```
-SQUIT <server> [reason]
-
-Splits <server> away from your side of the net with [reason].
-- Requires Oper Priv: oper:remote for servers not connected to you
-```
-
-### STATS
-
-```
-STATS <letter> [server|nick]
-
-Queries server [server] (or your own server if no
-server parameter is given) for info corresponding to
-<letter>.
-
-       (X = Admin only.)
-LETTER (* = Oper only.)
------- (^ = Can be configured to be oper only.)
-X A - Shows DNS servers
-X b - Shows active nick delays
-X B - Shows hash statistics
-^ c - Shows connect blocks (Old C:/N: lines)
-* d - Shows temporary D lines
-* D - Shows D lines
-* e - Shows exemptions to D lines
-X E - Shows Events
-X f - Shows File Descriptors
-* g - Shows global K lines
-^ h - Shows hub_mask/leaf_mask (Old H:/L: lines)
-^ i - Shows auth blocks (Old I: lines)
-^ K - Shows K lines (or matched klines)
-^ k - Shows temporary K lines (or matched klines)
-  L - Shows IP and generic info about [nick]
-  l - Shows hostname and generic info about [nick]
-  m - Shows commands and their usage
-  n - Shows DNS blacklists
-* O - Shows privset blocks
-^ o - Shows operator blocks (Old O: lines)
-^ P - Shows configured ports
-  p - Shows online opers
-* q - Shows temporary and global resv'd nicks and channels
-* Q - Shows resv'd nicks and channels
-* r - Shows resource usage by ircd
-* t - Shows generic server stats
-* U - Shows shared blocks (Old U: lines)
-  u - Shows server uptime
-^ v - Shows connected servers and brief status information
-* x - Shows temporary and global gecos bans
-* X - Shows gecos bans (Old X: lines)
-^ y - Shows connection classes (Old Y: lines)
-* z - Shows memory stats
-^ ? - Shows connected servers and sendq info about them
-```
+ResvNick blocks the usage of the given nickname.
+ResvChannel blocks the usage of the given channel.
 
 ### TESTGECOS
 
@@ -865,28 +740,6 @@ With a second argument, it changes the topic on that channel to
 topic.
 
 See also: cmode
-```
-
-### TRACE
-
-```
-TRACE [server | nick] [location]
-
-With no argument, TRACE gives a list of all clients connected
-to the local server, both users and operators.
-
-With one argument which is a server, TRACE displays the path
-to the specified server, and all servers, opers, and -i users
-on that server.
-
-Non-opers can only see themselves, opers and servers in the
-first two forms.
-
-With one argument which is a client, TRACE displays the
-path to that client, and that client's information.
-
-If location is given, the command is executed on that server;
-no path is displayed.
 ```
 
 ### UNDLINE
@@ -962,20 +815,18 @@ are not used, but there must be something in them.
 The reason is backwards compatibility.
 ```
 
-### USERHOST
+#### Event
 
+```go
+type User struct {
+    Username string
+    Realname string
+}
 ```
-USERHOST <nick>
 
-USERHOST displays the username, hostname,
-operator status, and presence of valid ident of
-the specified nickname.
+#### Effects
 
-If you use USERHOST on yourself, the hostname
-is replaced with the IP you are connecting from.
-This is needed to provide DCC support for spoofed
-hostnames.
-```
+User usually is run after Nick to finish client registration.
 
 ### USERS
 
@@ -1000,7 +851,7 @@ server, or the local server if there was no parameter.
 ### WHO
 
 ```
-WHO <#channel|nick|mask> [o][%format]
+WHO <#channel|nick>
 
 The WHO command displays information about a user,
 such as their GECOS information, their user@host,
@@ -1074,7 +925,7 @@ See also: whois, userhost, cmode, umode
 ### WHOIS
 
 ```
-WHOIS [remoteserver|nick] nick
+WHOIS [nick] nick
 
 WHOIS will display detailed user information for
 the specified nick.  If the first parameter is
