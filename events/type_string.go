@@ -4,9 +4,9 @@ package events
 
 import "fmt"
 
-const _Type_name = "EvNoneEvAcceptAddEvAcceptRemoveEvAcceptListEvAdminEvAwaySetReasonEvAwayClearReasonEvChghostEvDlineAddEvDlineTestEvDlineRemoveEvHelpEvInviteEvJoinEvKickEvKillEvKlineAddEvKlineTestEvKlineRemoveEvKnockEvListEvChannelModeAddEvChannelModeQueryEvChannelModeRemoveEvChannelListAddEvChannelListQueryEvChannelListRemoveEvMonitorAddEvMonitorRemoveEvMonitorClearEvMonitorQueryEvMonitorStatusEvMotdEvNamesEvNickEvNoticeChannelEvNoticeUserEvPartChannelEvPassEvPingEvMessageChannelEvMessageUserEvQuitEvResvChannelAddEvResvChannelQueryEvResvChannelRemoveEvResvNickAddEvResvNickQueryEvResvNickRemoveEvTopicEvUserEvUsersEvVersionEvWhoChannelEvWhoUserEvWhoisEvWhowasEvGecosBanAddEvGecosBanQueryEvGecosBanRemove"
+const _Type_name = "EvNoneEvAcceptAddEvAcceptRemoveEvAcceptListEvAdminEvAwaySetReasonEvAwayClearReasonEvChghostEvDlineAddEvDlineTestEvDlineRemoveEvHelpEvInviteEvJoinEvKickEvKillEvKlineAddEvKlineTestEvKlineRemoveEvKnockEvListEvChannelModeAddEvChannelModeQueryEvChannelModeRemoveEvChannelListAddEvChannelListQueryEvChannelListRemoveEvMonitorAddEvMonitorRemoveEvMonitorClearEvMonitorQueryEvMonitorStatusEvMotdEvNamesEvNickEvNoticeChannelEvNoticeUserEvPartChannelEvPassEvPingEvMessageChannelEvMessageUserEvResvChannelAddEvResvChannelQueryEvResvChannelRemoveEvResvNickAddEvResvNickQueryEvResvNickRemoveEvTopicEvUsersEvVersionEvWhoChannelEvWhoUserEvWhoisEvWhowasEvGecosBanAddEvGecosBanQueryEvGecosBanRemove"
 
-var _Type_index = [...]uint16{0, 6, 17, 31, 43, 50, 65, 82, 91, 101, 112, 125, 131, 139, 145, 151, 157, 167, 178, 191, 198, 204, 220, 238, 257, 273, 291, 310, 322, 337, 351, 365, 380, 386, 393, 399, 414, 426, 439, 445, 451, 467, 480, 486, 502, 520, 539, 552, 567, 583, 590, 596, 603, 612, 624, 633, 640, 648, 661, 676, 692}
+var _Type_index = [...]uint16{0, 6, 17, 31, 43, 50, 65, 82, 91, 101, 112, 125, 131, 139, 145, 151, 157, 167, 178, 191, 198, 204, 220, 238, 257, 273, 291, 310, 322, 337, 351, 365, 380, 386, 393, 399, 414, 426, 439, 445, 451, 467, 480, 496, 514, 533, 546, 561, 577, 584, 591, 600, 612, 621, 628, 636, 649, 664, 680}
 
 func (i Type) String() string {
 	if i < 0 || i >= Type(len(_Type_index)-1) {
