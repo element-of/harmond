@@ -1,0 +1,9 @@
+a00a8beb369cafd88bb7b32f31fc4ff3219c3565	github.com/Xe/gopreload
+a3b3ca73af22dd09dfac218f586a8f42c681298d	github.com/Xe/ln
+9474f19b515f52326c7d197d2d097caa7fc7485e	github.com/caarlos0/env
+62f833fc9f6c4d3223bdb37bd0c2f8951bed8596	github.com/google/gops/agent
+62f833fc9f6c4d3223bdb37bd0c2f8951bed8596	github.com/google/gops/internal
+62f833fc9f6c4d3223bdb37bd0c2f8951bed8596	github.com/google/gops/signal
+c2c54e542fb797ad986b31721e1baedf214ca413	github.com/kardianos/osext
+2ae17bc4c860c83513ee50feb9746f3e50d7515d	github.com/orcaman/concurrent-map
+ff09b135c25aae272398c51a07235b90a75aa4f0	github.com/pkg/errors
