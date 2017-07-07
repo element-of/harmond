@@ -1,22 +1,14 @@
 package main
 
 import (
-	"flag"
-	"log"
-	"net"
-
-	"github.com/element-of/harmond/server"
+	"github.com/Xe/ln"
+	"github.com/caarlos0/env"
 )
 
 func main() {
-	flag.Parse()
-
-	s := server.NewServer("irc.harmo.nd")
-
-	l, err := net.Listen("tcp", ":6667")
+	cfg := Config{}
+	err := env.Parse(&cfg)
 	if err != nil {
-		log.Fatal(err)
+		ln.FatalErr(err, ln.F{"action": "env.Parse"})
 	}
-
-	s.Serve(l)
 }

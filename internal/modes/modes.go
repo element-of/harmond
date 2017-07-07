@@ -1,8 +1,17 @@
 /*
 Package modes contains a bunch of constants and lookup tables that are
 a pain to use without this file.
+
+This package only has modes defined for Elemental-IRCd as that is the
+daemon this is intended to link against. If you are forking this
+daemon and want to support linking against other upstream irc daemons,
+this is probably the file you want to change. Changing this file
+without good reason in any major deployment may make support difficult
+or impossible.
 */
 package modes
+
+// Converted from a python file
 
 // PropFlag is a normal channel mode flag.
 type PropFlag int
